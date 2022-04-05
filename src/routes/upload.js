@@ -28,7 +28,7 @@ const imageUpload = multer({
 })
 
 // For Single image upload
-router.post('/uploadImage', imageUpload.single('image'), (req, res) => {
+router.post('/uploadImage', imageUpload.single('image'), (req, response) => {
     const payload = {
         execEndpoint: '/foo',
         data: [{
@@ -41,7 +41,8 @@ router.post('/uploadImage', imageUpload.single('image'), (req, res) => {
             mime_type: null,
             text: null,
             weight: null,
-            uri: req.file.path,
+            // uri: req.file.path,
+            uri: 'images/2.jpg',
             tags: null,
             offset: null,
             location: null,
@@ -54,18 +55,29 @@ router.post('/uploadImage', imageUpload.single('image'), (req, res) => {
         }]
     }
     // const url = 'https://eo655hjbigj51z7.m.pipedream.net'
-    const url = 'http://172.30.235.106:45678/index'
+    const url = 'http://172.30.235.106:45680/search'
     console.log(payload)
+    let messageResponse = []
     axios
         .post(url, payload)
         .then(res => {
             console.log(`statusCode: ${res.status}`)
             console.log(res)
+            console.log(res.data.data[0].tags.video_uri)
+            console.log(res.data.data[0].tags.timestamp)
+            res.data.data.forEach(data => {
+                let msg = {
+                    video_uri: data.tags.video_uri,
+                    timestamp_at_second: data.tags.timestamp
+                }
+                messageResponse.push(msg);
+            })
+            response.send(messageResponse);
         })
         .catch(error => {
-            console.error(error)
+            // console.error(error)
         })
-    res.send(req.file)
+    // res.send(req.file)
 }, (error, req, res, next) => {
     res.status(400).send({ error: error.message })
 })
@@ -100,7 +112,7 @@ const videoUpload = multer({
     }
 })
 
-router.post('/uploadVideo', videoUpload.single('video'), (req, res) => {
+router.post('/uploadVideo', videoUpload.single('video'), (req, response) => {
     const payload = {
         execEndpoint: '/foo',
         data: [{
@@ -113,7 +125,8 @@ router.post('/uploadVideo', videoUpload.single('video'), (req, res) => {
             mime_type: null,
             text: null,
             weight: null,
-            uri: req.file.path,
+            // uri: req.file.path,
+            uri: '/workspace/videos/t2.mp4',
             tags: null,
             offset: null,
             location: null,
@@ -126,18 +139,25 @@ router.post('/uploadVideo', videoUpload.single('video'), (req, res) => {
         }]
     }
     // const url = 'https://eo655hjbigj51z7.m.pipedream.net'
-    const url = 'http://172.30.235.106:45678/index'
+    const url = 'http://172.30.235.106:45680/index'
     console.log(payload)
+    let messageResponse = '';
     axios
         .post(url, payload)
         .then(res => {
             console.log(`statusCode: ${res.status}`)
-            // console.log(res)
+            // res.send(res.data.data.text)
+            console.log('res', res)
+            console.log('res.data', res.data)
+            console.log('res.data.data', res.data.data)
+            messageResponse = res.data.data[0].text
+            console.log(messageResponse)
+            response.send(messageResponse)
         })
         .catch(error => {
-            console.error(error)
+            console.error(error.message)
         })
-    res.send(req.file)
+    
 }, (error, req, res, next) => {
     res.status(400).send({ error: error.message })
 })
